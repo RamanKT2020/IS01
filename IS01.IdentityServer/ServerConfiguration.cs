@@ -62,7 +62,7 @@ namespace IS01.IdentityServer
 
                 Client client1 = new Client()
                 {
-                    ClientId = "Client1",
+                    ClientId = "client1",
                     ClientName = "Client Name 1",
                     ClientSecrets = new[] { client1Secret },
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials, //Because this client directly invokes the Web API
