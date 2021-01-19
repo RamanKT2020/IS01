@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +25,35 @@ namespace IS01.MVC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddAuthentication(o => {
+                o.DefaultScheme = "Cookies";
+                o.DefaultChallengeScheme = "oidc";
+                })
+
+                .AddCookie("Cookies", o =>
+                {
+                    o.AccessDeniedPath = "/Account/AccessDenied";
+                })
+
+                .AddOpenIdConnect("oidc", o =>
+                {
+                    o.ClientId = "client2";
+                    o.ClientSecret = "client2_secret_code";
+                    o.SignInScheme = "Cookies";
+                    o.Authority = "http://localhost:5000";
+                    o.RequireHttpsMetadata = false;
+                    o.ResponseType = "code id_token";
+                    o.SaveTokens = true;
+                    o.GetClaimsFromUserInfoEndpoint = true;
+                    o.Scope.Add("employeesWebApi");
+                    o.Scope.Add("roles");
+                    o.ClaimActions.MapUniqueJsonKey("role", "role");
+                    o.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        RoleClaimType = "role"
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +71,7 @@ namespace IS01.MVC
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

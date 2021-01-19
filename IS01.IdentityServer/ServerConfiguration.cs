@@ -1,4 +1,5 @@
-﻿using IdentityServer4.Models;
+﻿using IdentityServer4;
+using IdentityServer4.Models;
 using IdentityServer4.Test;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -69,17 +70,46 @@ namespace IS01.IdentityServer
                     AllowedScopes = { "openid", "roles", "employeesWebApi" }
                 };
 
+                Client client2 = new Client
+                {
+                    ClientName = "Client 2",
+                    ClientId = "client2",
+                    ClientSecrets = {
+                            new Secret("client2_secret_code".Sha512())
+                    },
+                    AllowedGrantTypes = GrantTypes.Hybrid,
+                    AllowedScopes = {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Address,
+                        IdentityServerConstants.StandardScopes.Email,
+                        IdentityServerConstants.StandardScopes.Phone,
+                        "employeesWebApi",
+                        "roles"
+                    },
+                    RedirectUris = new List<string> {
+                        "http://localhost:5010/signin-oidc"
+                    },
+                    PostLogoutRedirectUris = new List<string> {
+                        "http://localhost:5010/signout-callback-oidc"
+                    },
+                    RequirePkce = false,
+                    RequireConsent = true
+                };
+
                 List<Client> clients = new List<Client>();
                 clients.Add(client1);
+                clients.Add(client2);
                 return clients;
             }
         }
 
-        public static List<TestUser> TestUsers { get {
-
+        public static List<TestUser> TestUsers
+        {
+            get
+            {
                 TestUser testUser1 = new TestUser
                 {
-
                     SubjectId = "2f47f8f0-bea1-4f0e-ade1-88533a0eaf57",
                     Username = "user1",
                     Password = "password1",
@@ -92,12 +122,10 @@ namespace IS01.IdentityServer
                         new Claim("phone", "111-555-1212"),
                         new Claim("role", "Admin"),
                     }
-
                 };
 
                 TestUser testUser2 = new TestUser
                 {
-
                     SubjectId = "5747df40-1bff-49ee-aadf-905bacb39a3a",
                     Username = "user2",
                     Password = "password2",
@@ -110,15 +138,13 @@ namespace IS01.IdentityServer
                         new Claim("phone", "222-555-1212"),
                         new Claim("role", "Operator"),
                     }
-
                 };
-
 
                 List<TestUser> testUsers = new List<TestUser>();
                 testUsers.Add(testUser1);
                 testUsers.Add(testUser2);
                 return testUsers;
-
-            } }
+            }
+        }
     }
 }
